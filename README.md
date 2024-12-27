@@ -123,3 +123,25 @@ The SignalR service is tightly integrated with the `ReceiveFromDevice` and `Nego
 
 ## Data Flow
 ### End-to-End Data Flow
+- From IOT devices -> IoT Hub -> Azure Functions -> SignalR -> Web Application -> MongoDB
+- JSON Message structure
+- Database Data Modeling
+
+## Application Security
+- Autentication and authorization
+- Token-based authentication
+- Data encryption in transit/at rest
+
+## Deployment Architecture
+- CI/CD Pipeline:
+    - Integration with tools GitHub/Git Lab
+    - Steps for building, testing, and deploying the application.
+- Environment Setup: Azure environment configuration, resource 
+names, endpoints
+
+## Monitoring and Maintenance
+
+## Appendix
+- **References**: Links to Azure documentation for IoT Hub, SignalR, and Azure Functions.
+- **Glossay**: Define technical terms for non-technical readers.
+- **Code Samples**: Example configurations for IoT Hub routing, SignalR hubs, and Azure Functions.
