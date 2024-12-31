@@ -13,7 +13,7 @@
 7. [Scalability and Performance](#7-scalability-and-performance)
 8. [Deployment Architecture](#8-deployment-architecture)
 9. [Monitoring and Maintenance](#9-monitoring-and-maintenance)
-10. [Appendix](#9-appendix)
+10. [Appendix](#10-appendix)
 
 ---
 
