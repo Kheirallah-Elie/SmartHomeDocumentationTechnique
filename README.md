@@ -335,7 +335,7 @@ The application implements several security measures:
 
 ---
 
-## 7. Monitoring and Maintenance
+## 7. Scalability and Performance
 
 > [!TODO]
 
