@@ -295,7 +295,7 @@ Both Backend and Frontend launch at the same time.
     - Simple `NoSQL architecture` in `BSON` format (similar to `JSON`).
 
 - **Data Flow**:
-  - Toggled devices are immediately reflected in the database and the frontend through SignalR. See next section for more details.
+  - Toggled devices are immediately reflected in the database and the frontend through SignalR. See below for data flow in details.
 
 ##### Azure Integration
 - **Azure Functions**:
@@ -338,46 +338,76 @@ sequenceDiagram
 ```
 
 ### JSON Message Structure
-Device State Message:
+
+Upon toggling of a device, this is the JSON that will be added to the Payload to be transfered to the IoT Hub:
 ```json
 {
-  "deviceId": "device123",
-  "homeId": "home456",
-  "roomId": "room789",
+  "userId": "67754122ff97e995b6c1b44a",
+  "homeId": "SmartHome",
+  "roomId": "1",
+  "deviceId": "2",
   "state": true,
-  "timestamp": "2024-12-15T10:00:00Z"
 }
 ```
 
+The Web App was designed early on so that only the Id's of the selected User, Home, Room and Device, along with the state of the selected, are transfered to the IoT Hub through the Azure Function. 
+
+
 ### Database Schema
+
+`Note: The payload from the Arduino is different from this payload, and requires to be integrated correctly.`
+
+**Example of `helb` user:**
 ```json
-{
-  "user": {
-    "userId": "string",
-    "email": "string",
-    "password": "string",
-    "homes": [
-      {
-        "homeId": "string",
-        "nickname": "string",
-        "rooms": [
-          {
-            "roomId": "string",
-            "name": "string",
-            "devices": [
-              {
-                "deviceId": "string",
-                "description": "string",
-                "state": "boolean"
-              }
-            ]
-          }
+    {
+        "UserId": "67754122ff97e995b6c1b44a",
+        "Name": "helb",
+        "Email": "helb@gmail.com",
+        "Password": "$2a$11$rtNIAo3G4HpPCngnTpWfIOy0BMQaRFVsv0icH4nx33WeerSl9WWeq",
+        "Homes": [
+            {
+                "HomeId": "SmartHome",
+                "Nickname": "Smart Home",
+                "Address": "Brussels",
+                "Rooms": [
+                    {
+                        "RoomId": "1",
+                        "Name": "Living Room",
+                        "Devices": [
+                            {
+                                "DeviceId": "1",
+                                "Description": "Light",
+                                "State": false
+                            },
+                            {
+                                "DeviceId": "2",
+                                "Description": "Socket",
+                                "State": true
+                            }
+                        ]
+                    },
+                    {
+                        "RoomId": "2",
+                        "Name": "Kitchen",
+                        "Devices": [
+                            {
+                                "DeviceId": "1",
+                                "Description": "Light",
+                                "State": true
+                            },
+                            {
+                                "DeviceId": "2",
+                                "Description": "Socket",
+                                "State": false
+                            }
+                        ]
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  }
-}
+    }
 ```
+
 ---
 
 ## 6. Application Security
