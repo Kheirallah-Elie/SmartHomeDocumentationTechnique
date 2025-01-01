@@ -1,8 +1,5 @@
 # SmartHome Technical Documentation
-
-
 ---
-
 ## Table of Contents
 1. [Executive Summary](#1-executive-summary)
 2. [System Overview](#2-system-overview)
@@ -14,9 +11,7 @@
 8. [Deployment Architecture](#8-deployment-architecture)
 9. [Monitoring and Maintenance](#9-monitoring-and-maintenance)
 10. [Appendix](#10-appendix)
-
 ---
-
 > [!TODO]
 >
 > Retirer de la doc:
@@ -252,11 +247,71 @@ The SignalR service is tightly integrated with the `ReceiveFromDevice` and `Nego
 - **Scalability**: SignalR dynamically handles large numbers of simultaneous client connections and maintains high performance under load.
 
 
-> [!TODO]
 ### Web Application
-- Frontend: React or Angular.
-- Integration: REST APIs and SignalR.
-> [!TODO]
+- **Framework**: Angular with Typescript (Frontend), .NET with C# (Backend)
+- **Architecture**: Full-stack application with separation of concerns, integrating SignalR for real-time communication.
+Both Backend and Frontend launch at the same time.
+
+##### Frontend (Angular)
+- **Language**: Typescript
+- **Features**:
+  - **Login Page**: Secure authentication using the `User` model and crypted Passwords.
+  - **Main Dashboard**:
+    - Displays all homes, rooms, and devices associated with the logged-in user.
+    - Device toggling functionality with real-time updates being sent to all connected clients.
+  - **Forms**:
+    - Separate forms on the web page for adding:
+      - **Homes**: Associates new homes with the user.
+      - **Rooms**: Assigns rooms to specific homes.
+      - **Devices**: Maps devices to selected homes and rooms.
+    - Automatic ID generation for each added home, room, and device.
+- **Real-time Features**:
+  - Toggle devices via UI in real-time.
+  - Integration with SignalR within the Web App and from/to the Azure Function for instant updates on any device state change.
+
+##### Backend (.NET with C#)
+- **Architecture**:
+  - Well-structured code for easy maintainability with seperation of concerns with Controllers and Services for each Model, and a dedicated  SignalR hub class, and a HubContext to communicate with the MongoDB NoSQL Database.
+- **Features**:
+  - **CRUD Operations**: Create, read, update, and delete operations for models:
+    - User
+    - Home
+    - Room
+    - Device
+  - **Device Toggling**:
+    - `Device` model includes a toggle feature to change device states from **On** to **Off**.
+    - Sends the IDs of selected home, room, and device to Azure Functions in **JSON** format.
+  - **Integration with SignalR**:
+    - Enables real-time updates for frontend device toggling.
+    - Communication with the Azure Function for sending adapted **JSON** payloads to **IoT Hub**.
+
+##### Database (MongoDB)
+- **Structure**:
+  - **Collections**:
+    - `Users`, `Homes`, `Rooms`, and `Devices`.
+    - `USER` collection collecting the entire database of the application with all of the above.
+
+- **Design**:
+    - Simple `NoSQL architecture` in `BSON` format (similar to `JSON`).
+
+- **Data Flow**:
+  - Toggled devices are immediately reflected in the database and the frontend through SignalR. See next section for more details.
+
+##### Azure Integration
+- **Azure Functions**:
+  - Processes data when devices are toggled from the frontend.
+  - Adapts JSON payloads to match the IoT Hub's expected format for communication with Arduino devices.
+  - **`Rising issues`**:
+    - JSON compatibility mismatch between the app's payload and the Arduino configuration.
+    - Requires manual intervention to update the JSON format in IoT Hub or Arduino settings.
+- **SignalR**:
+  - Facilitates instant feedback between frontend and backend upon device state changes from the IoT Device and vice-versa.
+
+
+##### Summary
+This SmartHome web application provides a user-friendly and elegant interface for managing smart home configurations. It enables dynamic control of homes, rooms, and devices, using Angular for the frontend and .NET for backend logic. Real-time updates via SignalR ensure the state of the devices are kept updated, while integration with the Azure Function allows communication with the IoT Hub. 
+
+Addressing current compatibility issues will unlock the full potential of the system!
 
 ---
 
@@ -370,11 +425,52 @@ The application implements several security measures:
 
 ## 9. Monitoring and Maintenance
 
-> [!TODO]
+### Known Issues and Challenges
+1. **IoT JSON Compatibility**:
+   - The JSON payload sent from the web application to the IoT Hub does not align with the expected format in the client-defined Arduino setup.
+   - **Impact**: This misalignment causes communication errors, requiring manual intervention to adapt the payload structure for successful toggling.
+   - **Possible Solution**: Develop a middleware service to standardize JSON mapping dynamically between the web app and the IoT Hub.
+
+2. **Device Registration**:
+   - Newly generated IDs for homes, rooms, and devices in the web app need to be manually registered in the IoT Hub or Arduino configuration or vice-versa (meaning, modifying the IDs of the objects within MongoDB manually).
+   - **Impact**: This manual process is prone to errors and increases setup time for users.
+
+3. **Database Synchronization with JSON Payloads**:
+   - When the Arduino sends a JSON payload containing the states of multiple rooms and devices simultaneously, the frontend processes the data to update the MongoDB database.
+   - **Issue**: Database updates occur randomly due to asynchronous handling, leading to incorrect devices being toggled.
+   - **Solution**:
+     - Implement robust asynchronous handling mechanisms to process devices one by one.
+     - Introduce transaction-like operations or atomic updates in MongoDB to ensure consistency during batch updates.
+
+### Maintenance Tasks
+1. **Routine Testing**:
+   - Often verify JSON compatibility between the web app, IoT Hub, and Arduino configurations.
+   - Test device toggling to ensure proper database updates and state changes.
+
+2. **Database Optimization**:
+   - Refactor database update logic to handle simultaneous payloads asynchronously without causing conflicts.
+
+3. **Azure Portal Configuration**:
+   It might be necessary to configure the Azure Portal in any changes of the used Database, IoT Hub, changing the domain name of the current port of the localhost, etc.. 
+   Here are the steps to keep these checked:
+   - **Connection String**:
+     - Navigate to the Azure portal to your Azure Function and to your Web App.
+     - Select `environment variable`, and locate the resource you want to change/add.
+     - Copy the connection string from the "Connection Strings" section and apply changes.
+     - Also update the connection string in the backend's configuration file (e.g., `appsettings.json` or an environment variable).
+   - **CORS Settings**:
+     - For each Azure resource that requires CORS (e.g., SignalR, Azure Function, IoT Hub):
+       1. Navigate to the "CORS" settings section of the resource.
+       2. Add the allowed origins:
+          - For local development: `http://localhost:4200`
+          - For production: Add the domain name of the hosted web app (e.g., `https://yourdomain.com`).
+       3. Save the changes to enable cross-origin requests.
+
+4. **Future Improvements**:
+   - Automate JSON mapping for seamless compatibility, if possible.
+   - Develop tools for ID synchronization and eliminate manual registration steps, if possible.
 
 ---
-
-
 
 ## 10. Appendix
 
