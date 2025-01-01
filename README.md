@@ -339,7 +339,8 @@ sequenceDiagram
 
 ### JSON Message Structure
 
-Upon toggling of a device, this is the JSON that will be added to the Payload to be transfered to the IoT Hub:
+Upon toggling of any device, this is an example of the content of the JSON Payload that will be integrated through the Arduino's JSON:
+
 ```json
 {
   "userId": "67754122ff97e995b6c1b44a",
@@ -350,12 +351,9 @@ Upon toggling of a device, this is the JSON that will be added to the Payload to
 }
 ```
 
-The Web App was designed early on so that only the Id's of the selected User, Home, Room and Device, along with the state of the selected, are transfered to the IoT Hub through the Azure Function. 
-
+To avoid modifying the entire Database after each device toggle, the Web App was designed early on so that only the ID's of the selected User, Home, Room and Device, along with the state of that device to be transfered to the IoT Hub through the Azure Function. Unfortunately, the JSON payload from the Arduino contains the entire database, and was communicated in the last week of the project, which made seamless integration between the Web App and the Arduino quite difficult.
 
 ### Database Schema
-
-`Note: The payload from the Arduino is different from this payload, and requires to be integrated correctly.`
 
 **Example of `helb` user:**
 ```json
