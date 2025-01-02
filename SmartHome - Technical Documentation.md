@@ -101,7 +101,7 @@ The *SmartHome* system provides an innovative, cloud-based IoT solution that lev
 
 ### Context Diagram of the Solution
 
-![structurizr-98609-ContextDiagram](.\structurizr-98609-ContextDiagram.png)
+![structurizr-98609-ContextDiagram](structurizr-98609-ContextDiagram.png)
 
 ---
 
@@ -121,7 +121,7 @@ The system comprises five key containers:
 
 ### Container Diagram
 
-![structurizr-98609-ContainerDiagram](.\structurizr-98609-ContainerDiagram.png)
+![structurizr-98609-ContainerDiagram](structurizr-98609-ContainerDiagram.png)
 
 ---
 
@@ -151,7 +151,7 @@ Azure IoT Hub serves as the central communication hub between IoT devices and th
 
 This section provides a technical breakdown of the Azure Functions implemented in the `EventGridTriggerT5` class. These functions are critical to enabling device communication, real-time updates, and client connectivity.
 
-![structurizr-98609-AzureFunctionsComponentDiagram](.\structurizr-98609-AzureFunctionsComponentDiagram.png)
+![structurizr-98609-AzureFunctionsComponentDiagram](structurizr-98609-AzureFunctionsComponentDiagram.png)
 
 #### **ReceiveFromDevice**
 
@@ -214,7 +214,7 @@ The SignalR service is tightly integrated with the `ReceiveFromDevice` and `Nego
 - **Architecture**: Full-stack application with separation of concerns, integrating SignalR for real-time communication.
   Both Backend and Frontend launch at the same time.
 
-![structurizr-98609-AppServicesComponentDiagram](.\structurizr-98609-AppServicesComponentDiagram.png)
+![structurizr-98609-AppServicesComponentDiagram](structurizr-98609-AppServicesComponentDiagram.png)
 
 #### Frontend (Angular)
 
@@ -255,7 +255,7 @@ The SignalR service is tightly integrated with the `ReceiveFromDevice` and `Nego
 
 ### Database (MongoDB)
 
-![structurizr-98609-MongoDBComponentDiagram](.\structurizr-98609-MongoDBComponentDiagram.png)
+![structurizr-98609-MongoDBComponentDiagram](structurizr-98609-MongoDBComponentDiagram.png)
 
 - **Structure**:
   - **Collections**:
