@@ -64,8 +64,8 @@ This technical documentation is intended for the following key stakeholders:
 
 - **Mr. Ghassan Farah**: Orange client representative.
 - **Mr. Soufyan Lemniai**: Scrum master.
-- **Mr. Matthieu Schuermans**: Scrum master.
-- **Ms. Alisia Temerbek**: English and communication quality advisor.
+- **Mr. Mathieu Schuermans**: Scrum master.
+- **Ms. Alisa Temerbek**: English and communication quality advisor.
 
 #### Technical Team
 
