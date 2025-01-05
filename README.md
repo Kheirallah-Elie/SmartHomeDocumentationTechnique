@@ -258,29 +258,6 @@ Both Backend and Frontend launch at the same time.
 - **Data Flow**:
   - Toggled devices are immediately reflected in the database and the frontend through SignalR. See below for data flow in details.
 
-#### Azure Integration
-
-> REM: Pk encore azure functions ?
-
-- **Azure Functions**:
-  - Processes data when devices are toggled from the frontend.
-  - Adapts JSON payloads to match the IoT Hub's expected format for communication with Arduino devices.
-  - **`Rising issues`**:
-    - JSON compatibility mismatch between the app's payload and the Arduino configuration.
-    - Requires manual intervention to update the JSON format in IoT Hub or Arduino settings.
-- **SignalR**:
-  - Facilitates instant feedback between frontend and backend upon device state changes from the IoT Device and vice-versa.
-
-### Summary
-
-> REM: Summary et ce contenu vrmnt utile ici ?
-
-This SmartHome web application provides a user-friendly and elegant interface for managing smart home configurations. It enables dynamic control of homes, rooms, and devices, using Angular for the frontend and .NET for backend logic. Real-time updates via SignalR ensure the state of the devices are kept updated, while integration with the Azure Function allows communication with the IoT Hub. 
-
->  [!NOTE]
->
-> Addressing current compatibility issues will unlock the full potential of the system
-
 ---
 
 ## **5. Data Flow**
@@ -318,7 +295,18 @@ Upon toggling of any device, this is an example of the content of the JSON Paylo
 }
 ```
 
-To avoid modifying the entire Database after each device toggle, the Web App was designed early on so that only the ID's of the selected User, Home, Room and Device, along with the state of that device to be transfered to the IoT Hub through the Azure Function. Unfortunately, the JSON payload from the Arduino contains the entire database, and was communicated in the last week of the project, which made seamless integration between the Web App and the Arduino quite difficult.
+To avoid modifying the entire Database after each device toggle, the Web App was designed so that only the ID's of the selected User, Home, Room and Device, along with the state of that device to be transfered to the IoT Hub through the Azure Function. Note that the JSON payload from the Arduino contains the entire database, which made seamless integration between the Web App and the Arduino quite difficult.
+
+> [!caution]
+>
+> Rising issues:
+>
+> - JSON compatibility mismatch between the app's payload and the Arduino configuration.
+> - Requires manual intervention to update the JSON format in IoT Hub or Arduino settings.
+
+> [!note]
+>
+> Addressing current compatibility issues will unlock the full potential of the system.
 
 ### Database Schema
 
@@ -386,8 +374,6 @@ The application implements several security measures:
 ---
 ## **7. Deployment Architecture**
 
-> TODO: Enhance with Elie's information ? 
-
 ### Environment Setup
 
 1. Azure Resources:
@@ -402,6 +388,112 @@ The application implements several security measures:
    - Node.js and Angular CLI
    - Azure Functions Core Tools
 
+
+### Deployment Status
+
+#### Frontend (Angular)
+
+The Angular frontend has **not been successfully deployed** to Azure yet. To run the frontend locally, please follow the instructions in the [Running Frontend Locally](#running-frontend-locally) section below.
+
+#### Backend (.NET)
+
+The .NET backend has been successfully deployed to Azure and is accessible at:
+
+**[https://web-app-t5-dev-aca2dahff0bkb5g9.westeurope-01.azurewebsites.net/api/user](https://web-app-t5-dev-aca2dahff0bkb5g9.westeurope-01.azurewebsites.net/api/user)**
+
+
+The backend currently has CORS permissions configured to allow requests from:
+
+- **http://localhost:4200** (for local frontend development)
+- **https://localhost:4200** (for secure local frontend development)
+
+> [!warning]
+>
+> Once the frontend is deployed to Azure, the CORS configuration must be updated to allow requests from the deployed domain instead of localhost.
+
+
+### Running Frontend Locally
+
+To run the Angular frontend locally, follow these steps:
+
+1. **Open `SMARTHOMEWEB.CLIENT` folder and Install Node.js and Angular CLI:**
+
+   - Ensure you have Node.js installed. Download it from [Node.js Official Site](https://nodejs.org).
+
+   - Install the Angular CLI globally by running:
+
+     ```bash
+     npm install -g @angular/cli
+     ```
+
+      If you're on a Mac or Linux, use the **sudo** command
+
+      ```bash
+     sudo npm install -g @angular/cli
+      ```
+
+2. **Clone the Repository:**
+
+   - Clone the frontend repository to your local machine.
+
+3. **Install Dependencies:**
+
+   - Navigate to the project directory and run:
+
+     ```bash
+     npm install
+     ```
+
+   - If you're on a Mac or Linux, use this command beforehand
+
+     ```bash
+     sudo chown -R $(whoami) $(npm config get cache)
+     ```
+
+4. **Start the Development Server:**
+
+   - Run the Angular development server:
+
+     ```bash
+     ng serve
+     ```
+
+      If you encounter more problems, execute these commands to clean the modules and re-install them:
+
+      ``` bash
+     rm -rf node_modules package-lock.json
+     npm cache clean --force
+     npm install
+      ```
+
+   - By default, the server should now run on **http://localhost:4200** or **https://localhost:4200**.
+
+
+5. **Test the Application:**
+   - Ensure the frontend is functional by accessing the local server in your browser.
+   - The frontend will communicate with the backend hosted at:
+     **https://web-app-t5-dev-aca2dahff0bkb5g9.westeurope-01.azurewebsites.net**
+
+#### Login credentials
+
+Once the Application is running and you're on the Login page use these credentials to log in and please not not delete the content because the ID's of the registered homes, rooms and devices are **directly tied** with the IoT Hub!
+
+**email :**       `helb`
+**password :**    `helb`
+
+You can however create a new account to add homes, rooms and devices, toggle them, remove them, etc.. But they will not be tied with the IoT Hub unless your register them, and toggling them will return a server error, because their **ID's do not match** with the ones that are registered on the IoT Hub.
+
+### Future Changes to CORS
+
+- **Current Setting:** Backend allows requests from `http://localhost:4200` and `https://localhost:4200`.
+- **After Frontend Deployment:** Go to Azure Portal and update the CORS configuration to allow requests from the frontend's Azure new domain.
+
+To modify the CORS settings, update the backend's CORS configuration in the Azure Function App or in the application code (in the `appsettings.json` and `program.cs` files).
+
+>  [!note]
+>
+> If you encounter any issues or have questions, feel free to reach us!
+
 ---
 
 ## **8. Monitoring and Maintenance**
@@ -409,16 +501,22 @@ The application implements several security measures:
 ### Known Issues and Challenges
 
 1. **IoT JSON Compatibility**:
-   - The JSON payload sent from the web application to the IoT Hub does not align with the expected format in the client-defined Arduino setup.
+
+   The JSON payload sent from the web application to the IoT Hub does not align with the expected format in the client-defined Arduino setup.
+
    - **Impact**: This misalignment causes communication errors, requiring manual intervention to adapt the payload structure for successful toggling.
    - **Possible Solution**: Develop a middleware service to standardize JSON mapping dynamically between the web app and the IoT Hub.
 
 2. **Device Registration**:
-   - Newly generated IDs for homes, rooms, and devices in the web app need to be manually registered in the IoT Hub or Arduino configuration or vice-versa (meaning, modifying the IDs of the objects within MongoDB manually).
+
+   Newly generated IDs for homes, rooms, and devices in the web app need to be manually registered in the IoT Hub or Arduino configuration or vice-versa (meaning, modifying the IDs of the objects within MongoDB manually).
+
    - **Impact**: This manual process is prone to errors and increases setup time for users.
 
 3. **Database Synchronization with JSON Payloads**:
-   - When the Arduino sends a JSON payload containing the states of multiple rooms and devices simultaneously, the frontend processes the data to update the MongoDB database.
+
+   When the Arduino sends a JSON payload containing the states of multiple rooms and devices simultaneously, the frontend processes the data to update the MongoDB database.
+
    - **Issue**: Database updates occur randomly due to asynchronous handling, leading to incorrect devices being toggled.
    - **Solution**:
      - Implement robust asynchronous handling mechanisms to process devices one by one.
@@ -434,7 +532,7 @@ The application implements several security measures:
    - Refactor database update logic to handle simultaneous payloads asynchronously without causing conflicts.
 
 3. **Azure Portal Configuration**:
-   It might be necessary to configure the Azure Portal in any changes of the used Database, IoT Hub, changing the domain name of the current port of the localhost, etc.. 
+   It might be necessary to configure the Azure Portal in any changes of the used Database, IoT Hub, changing the domain name of the current port of the localhost, etc. 
    Here are the steps to keep these checked:
    - **Connection String**:
      - Navigate to the Azure portal to your Azure Function and to your Web App.
@@ -461,8 +559,6 @@ The application implements several security measures:
 - [Azure Functions Documentation](https://docs.microsoft.com/en-us/azure/azure-functions/)
 - [SignalR Documentation](https://docs.microsoft.com/en-us/aspnet/core/signalr/)
 - [MongoDB Documentation](https://docs.mongodb.com/)
-
-### Attachments 
 
 ---
 
