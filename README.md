@@ -264,6 +264,7 @@ Both Backend and Frontend launch at the same time.
 
 ```mermaid
 sequenceDiagram
+	participant U as User
     participant D as Device
     participant I as IoT Hub
     participant F as Azure Functions
@@ -271,14 +272,23 @@ sequenceDiagram
     participant W as WebApp
     participant M as MongoDB
 
+	alt User controls directly the device
+        U->>D: Controls
+    else User controls remotely the device via the web app
+    	U->>W: Interacts with
+        W->>F: Sends command
+        F->>I: Broadcasts command
+        I->>D: Delivers command
+    end
+
+    D->>D: Device changes state
+
     D->>I: Device State Update
     I->>F: Event Grid Trigger
-    F->>M: Update State
-    F->>S: Broadcast Update
+    
+    F->>S: Broadcasts Update
     S->>W: Real-time Update
-    W->>F: Device Command
-    F->>I: Command Message
-    I->>D: Execute Command
+    W->>M: Persist State
 ```
 
 ### JSON Message Structure
