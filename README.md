@@ -117,7 +117,7 @@ The system comprises five key containers:
 
 ### Container Diagram
 
-![structurizr-smarthomeT5-ContainerDiagram](diagrams\structurizr-smarthomeT5-ContainerDiagram.png)
+![structurizr-smarthomeT5-ContainerDiagram](diagrams/structurizr-smarthomeT5-ContainerDiagram.png)
 
 ---
 
@@ -144,7 +144,7 @@ Azure IoT Hub serves as the central communication hub between IoT devices and th
 
 This section provides a technical breakdown of the Azure Functions implemented in the `EventGridTriggerT5` class. These functions are critical to enabling device communication, real-time updates, and client connectivity.
 
-![structurizr-smarthomeT5-AzureFunctionsComponentDiagram](diagrams\structurizr-smarthomeT5-AzureFunctionsComponentDiagram.png)
+![structurizr-smarthomeT5-AzureFunctionsComponentDiagram](diagrams/structurizr-smarthomeT5-AzureFunctionsComponentDiagram.png)
 
 #### ReceiveFromDevice
 
@@ -206,7 +206,7 @@ The SignalR service is tightly integrated with the `ReceiveFromDevice` and `Nego
 - **Architecture**: Full-stack application with separation of concerns, integrating SignalR for real-time communication.
 Both Backend and Frontend launch at the same time.
 
-![structurizr-smarthomeT5-AppServicesComponentDiagram](diagrams\structurizr-smarthomeT5-AppServicesComponentDiagram.png)
+![structurizr-smarthomeT5-AppServicesComponentDiagram](diagrams/structurizr-smarthomeT5-AppServicesComponentDiagram.png)
 
 #### Frontend (Angular)
 
@@ -245,7 +245,7 @@ Both Backend and Frontend launch at the same time.
 
 ### Database (MongoDB)
 
-![structurizr-smarthomeT5-MongoDBComponentDiagram](diagrams\structurizr-smarthomeT5-MongoDBComponentDiagram.png)
+![structurizr-smarthomeT5-MongoDBComponentDiagram](diagrams/structurizr-smarthomeT5-MongoDBComponentDiagram.png)
 
 - **Structure**:
   - **Collections**:
