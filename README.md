@@ -527,10 +527,8 @@ To modify the CORS settings, update the backend's CORS configuration in the Azur
 1. **Routine Testing**:
    - Often verify JSON compatibility between the web app, IoT Hub, and Arduino configurations.
    - Test device toggling to ensure proper database updates and state changes.
-
 2. **Database Optimization**:
    - Refactor database update logic to handle simultaneous payloads asynchronously without causing conflicts.
-
 3. **Azure Portal Configuration**:
    It might be necessary to configure the Azure Portal in any changes of the used Database, IoT Hub, changing the domain name of the current port of the localhost, etc. 
    Here are the steps to keep these checked:
@@ -546,10 +544,11 @@ To modify the CORS settings, update the backend's CORS configuration in the Azur
           - For local development: `http://localhost:4200`
           - For production: Add the domain name of the hosted web app (e.g., `https://yourdomain.com`).
        3. Save the changes to enable cross-origin requests.
-
 4. **Future Improvements**:
    - Automate JSON mapping for seamless compatibility, if possible.
    - Develop tools for ID synchronization and eliminate manual registration steps, if possible.
+
+---
 
 ## **9. Appendix**
 
