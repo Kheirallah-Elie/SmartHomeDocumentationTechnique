@@ -97,7 +97,7 @@ The *SmartHome* system provides an innovative, cloud-based IoT solution that lev
 
 ### Context Diagram of the Solution
 
-![structurizr-smarthomeT5-ContextDiagram](diagrams\structurizr-smarthomeT5-ContextDiagram.png)
+![structurizr-smarthomeT5-ContextDiagram](diagrams/structurizr-smarthomeT5-ContextDiagram.png)
 
 ---
 
