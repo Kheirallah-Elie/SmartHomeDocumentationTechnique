@@ -1,6 +1,16 @@
 # SmartHome Technical Documentation
 ---
-[TOC]
+## Table Of Content
+
+1. [Executive Summary](#1-executive-summary)
+2. [System Overview](#2-system-overview)
+3. [Architecture Overview](#3-architecture-overview)
+4. [Detailed Component Design](#4-detailed-component-design)
+5. [Data Flow](#5-data-flow)
+6. [Application Security](#6-application-security.)
+7. [Deployment Architecture](#7-deployment-architecture)
+8. [Monitoring and Maintenance](#8-monitoring-and-maintenance)
+9. [Appendix](#9-appendix)
 
 ---
 ## **1. Executive Summary**
