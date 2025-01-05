@@ -1,30 +1,9 @@
 # SmartHome Technical Documentation
 ---
-## Table of Contents
-1. [Executive Summary](#1-executive-summary)
-2. [System Overview](#2-system-overview)
-3. [Architecture Overview](#3-architecture-overview)
-4. [Detailed Component Design](#4-detailed-component-design)
-5. [Data Flow](#5-data-flow)
-6. [Application Security](#6-application-security)
-7. [Scalability and Performance](#7-scalability-and-performance)
-8. [Deployment Architecture](#8-deployment-architecture)
-9. [Monitoring and Maintenance](#9-monitoring-and-maintenance)
-10. [Appendix](#10-appendix)
+[TOC]
+
 ---
-> [!TODO]
->
-> Retirer de la doc:
-
-COULEURS MERMAID:
-
-``````
-classDef azure fill:#1B65E5,stroke:#FFDE59,stroke-width:2px,color:#FFDE59
-classDef database fill:#13AA52,stroke:#FFF,stroke-width:2px,color:#FFF
-``````
-
-
-## 1. Executive Summary
+## **1. Executive Summary**
 
 ### Purpose
 
@@ -46,130 +25,93 @@ The *SmartHome* project aims to provide a cloud-based IoT solution that enables 
 > ❌ Voice Control Features  
 > ❌ AI/ML Implementation
 
+#### Project Backlog - Core Features
+
+| Epic                       | Story                                      | Priority | Sprint |
+| -------------------------- | ------------------------------------------ | -------- | ------ |
+| **Application Deployment** |                                            |          |        |
+| QT5-46                     | Deploy Angular Full-Stack Web App to Azure | Medium   | 3      |
+| **User Authentication**    |                                            |          |        |
+| QT5-8                      | Register Account                           | Medium   | 2      |
+|                            | Login to Application                       | High     | 2      |
+| **Device Control**         |                                            |          |        |
+| QT5-5                      | Send Commands to Arduino                   | Medium   | 3      |
+|                            | Receive JSON from Arduino                  | Medium   | 3      |
+|                            | Real-time Device State Updates             | Medium   | 2      |
+| **Infrastructure**         |                                            |          |        |
+| QT5-17                     | Connect MongoDB Database                   | High     | -      |
+|                            | Implement SignalR                          | Medium   | 2      |
+|                            | Create Event Grid/Azure Function           | High     | 2      |
+| **User Experience**        |                                            |          |        |
+| QT5-38                     | Form Implementation                        | Medium   | 3      |
+|                            | Add Homes/Rooms/Devices                    | Medium   | 2      |
+
+A detailed export of the Jira backlog is available [here](https://helbprigogineeu-my.sharepoint.com/:x:/g/personal/lcalvocastano_helb-prigogine_be/ESyUca8cErpIoW_8XHHJTt8B96AElDXqN4c4nvghfabXbw?e=id4HdE).
+
+### Audience 
+
+This technical documentation is intended for the following key stakeholders:
+
+- **Mr. Ghassan Farah**: Orange client representative.
+- **Mr. Soufyan Lemniai**: Scrum master.
+- **Mr. Matthieu Schuermans**: Scrum master.
+- **Ms. Alisia Temerbek**: English and communication quality advisor.
+
+#### Technical Team
+
+This documentation is also intended for all developers, project managers, and anyone who will be using or maintaining the system. It provides essential information on system design, implementation, and maintenance to ensure smooth operation and effective troubleshooting.
+
 ---
 
-## 2. System Overview
+## **2. System Overview**
 
 ### Problem Statement
 
-Modern homes require smart automation solutions that allow users to:
+Modern homes increasingly demand efficient and centralized solutions to manage Internet of Things (IoT) devices. However, current systems often lack real-time control, seamless multi-home management, and robust security. Users face challenges such as:
 
-- Control devices remotely
-- Monitor device states in real-time
-- Manage multiple homes and rooms
-- Ensure secure access to their devices
+- Remote operation and monitoring of devices
+- Real-time updates on device states
+- Management of multiple homes, rooms, and devices
+- Ensuring secure and scalable access to IoT networks
 
 ### Solution Highlights
 
-The solution leverages several Azure services and modern web technologies:
+The *SmartHome* system provides an innovative, cloud-based IoT solution that leverages Microsoft Azure services and modern web technologies. This serverless and real-time platform addresses the core requirements of remote control, real-time monitoring, and secure data handling.
 
-``````mermaid
-graph LR
-    De[IoT Devices] <-->|via IoT Hub| Af[Azure Functions]
-    Af -->|via SignalR| Wa[Web Application]
-    Wa -->|Device Commands| Af
-    Wa <-->|Collections Management| Md[(MongoDB)]
+#### Key Components of the Solution
 
-	classDef azure fill:#1B65E5,stroke:#FFDE59,stroke-width:2px,color:#FFDE59
-	classDef database fill:#13AA52,stroke:#FFF,stroke-width:2px,color:#FFF
-	
-	class Af azure
-	class Md database
-``````
+- **Azure IoT Hub**: Acts as a central point for communication between IoT devices and the cloud, enabling reliable and scalable device integration.
+- **Azure Functions**: Processes and orchestrates messages between IoT Hub, SignalR, and the database, ensuring a seamless data flow.
+- **SignalR**: Manages real-time updates, facilitating instantaneous communication between users and devices.
+- **Web App**: Provides a responsive and intuitive user interface for managing IoT devices and homes remotely.
 
-| Azure IoT Hub                                                | Azure Functions                                              | SignalR                                                      |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Manages bi-directional communication between devices and cloud | Handles device state changes and manages communication between IoT Hub and SignalR | Enables real-time communication between the web application and cloud services |
+### Context Diagram of the Solution
+
+![structurizr-smarthomeT5-ContextDiagram](diagrams\structurizr-smarthomeT5-ContextDiagram.png)
 
 ---
 
-## 3. Architecture Overview
+## **3. Architecture Overview**
 
-### Logic Architecture Diagram
-The system follows a microservices architecture pattern, integrating IoT devices, cloud services, and web applications.
+### Logical Architecture Overview
 
-```mermaid
-flowchart LR
-    subgraph Devices["IoT Devices"]
-        iot[("IoT\nDevices")]
-    end
-    subgraph Azure["Azure Cloud Services"]
-        iothub["IoT Hub\n(Gateway)"]
-        functions["Azure Functions\n(Event Processing)"]
-        signalr["SignalR\n(Real-time)"]
-    end
-    subgraph Storage["Data Layer"]
-        mongodb[("MongoDB\n(Device Data)")]
-    end
-    subgraph Frontend["Application Layer"]
-        webapp["Web App\n(Front/Back)"]
-    end
-    %% Device to Cloud
-    iot <-- MQTT protocol --> iothub
-    iothub -- "Eventgrid Event Stream" --> functions
-    functions -- "HTTP protocol" --> iothub
-    functions --> signalr
-    signalr -- "Real-time Updates" --> webapp
-    %% Data Storage
-    webapp <--> mongodb
-    %% Styling
-    classDef azure fill:#1B65E5,stroke:#FFDE59,stroke-width:2px,color:#FFDE59
-    classDef database fill:#13AA52,stroke:#FFF,stroke-width:2px,color:#FFF
-    class iothub,functions,signalr azure
-    class mongodb database
-```
+The *SmartHome* system follows a microservices and serverless architecture pattern. It integrates IoT devices with cloud services to deliver real-time, secure, and scalable smart home automation capabilities. The architecture leverages Microsoft Azure's rich ecosystem to seamlessly handle device communication, data processing, and user interaction.
 
-### Container Description
+The system comprises five key containers:
 
-#### Azure IoT Hub
-- **Purpose**: Manages IoT device communication
-- **Features**:
-  - Device registration
-  - Message routing
-  - Device twins
-  - Security management
-- **Configuration**: Configured in West Europe region with standard tier
+1. **Azure IoT Hub**: Serves as the gateway for IoT devices through MQTT protocol. It enables secure and scalable communication.
+2. **Azure Functions**: Manages serverless event processing, device orchestration, and integration with other services.
+3. **SignalR**: Enables real-time notifications and updates for users via WebSocket connections.
+4. **MongoDB**: Stores structured IoT data for device state, user configurations, and logs.
+5. **Web App**: A responsive Angular-based interface for users to manage homes, rooms, and IoT devices in real-time.
 
-#### Azure Functions
-- **Implementation**: .NET 8.0
-- **Triggers**: 
-  - HTTP triggers for API endpoints
-  - Event Grid triggers for IoT events
-- **Key Functions**:
-  - ReceiveFromDevice
-  - SendToDevice
-  - Negotiate (SignalR)
+### Container Diagram
 
-#### SignalR
-- **Purpose**: Real-time communication
-- **Features**:
-  - WebSocket support
-  - Fallback to long polling
-  - Client groups
-  - Connection management
-- **Integration**: Azure SignalR Service
-
-#### WebApp
-- **Framework**: Angular
-- **Features**:
-  - Device control interface
-  - Real-time updates while coding
-  - Responsive design
-  - Frontend integrates well with .NET's Backend
-
-#### MongoDB
-- **Purpose**: Data persistence
-- **Collections**:
-    - Users
-        - User
-        - Home
-        - Room
-        - Device
-- **Schema**: Document-based with nested objects
+![structurizr-smarthomeT5-ContainerDiagram](diagrams\structurizr-smarthomeT5-ContainerDiagram.png)
 
 ---
 
-## 4. Detailed Component Design
+## **4. Detailed Component Design**
 
 ### Components Description
 - **IoT Devices**: Edge devices sending telemetry data.
@@ -192,7 +134,9 @@ Azure IoT Hub serves as the central communication hub between IoT devices and th
 
 This section provides a technical breakdown of the Azure Functions implemented in the `EventGridTriggerT5` class. These functions are critical to enabling device communication, real-time updates, and client connectivity.
 
-#### **ReceiveFromDevice**
+![structurizr-smarthomeT5-AzureFunctionsComponentDiagram](diagrams\structurizr-smarthomeT5-AzureFunctionsComponentDiagram.png)
+
+#### ReceiveFromDevice
 
 - **Trigger**: This function is triggered by an Event Grid event containing telemetry data sent by IoT devices.
 - **Parameters**:
@@ -206,7 +150,7 @@ This section provides a technical breakdown of the Azure Functions implemented i
 - **Integration**:
   - Bridges IoT devices and the SignalR clients (e.g., Angular web app) by transmitting telemetry data in real-time.
 
-#### **SendToDevice**
+#### SendToDevice
 
 - **Trigger**: Triggered via an HTTP POST request to send commands to a specific IoT device.
 - **Parameters**:
@@ -222,7 +166,7 @@ This section provides a technical breakdown of the Azure Functions implemented i
 - **Integration**:
   - Facilitates two-way communication by allowing the Angular web app to send commands to IoT devices via the IoT Hub.
 
-#### **Negotiate**
+#### Negotiate
 
 - **Trigger**: Triggered via an HTTP POST request to provide SignalR connection details to clients.
 - **Parameters**:
@@ -252,7 +196,10 @@ The SignalR service is tightly integrated with the `ReceiveFromDevice` and `Nego
 - **Architecture**: Full-stack application with separation of concerns, integrating SignalR for real-time communication.
 Both Backend and Frontend launch at the same time.
 
-##### Frontend (Angular)
+![structurizr-smarthomeT5-AppServicesComponentDiagram](diagrams\structurizr-smarthomeT5-AppServicesComponentDiagram.png)
+
+#### Frontend (Angular)
+
 - **Language**: Typescript
 - **Features**:
   - **Login Page**: Secure authentication using the `User` model and crypted Passwords.
@@ -269,7 +216,8 @@ Both Backend and Frontend launch at the same time.
   - Toggle devices via UI in real-time.
   - Integration with SignalR within the Web App and from/to the Azure Function for instant updates on any device state change.
 
-##### Backend (.NET with C#)
+#### Backend (.NET with C#)
+
 - **Architecture**:
   - Well-structured code for easy maintainability with seperation of concerns with Controllers and Services for each Model, and a dedicated  SignalR hub class, and a HubContext to communicate with the MongoDB NoSQL Database.
 - **Features**:
@@ -285,7 +233,10 @@ Both Backend and Frontend launch at the same time.
     - Enables real-time updates for frontend device toggling.
     - Communication with the Azure Function for sending adapted **JSON** payloads to **IoT Hub**.
 
-##### Database (MongoDB)
+### Database (MongoDB)
+
+![structurizr-smarthomeT5-MongoDBComponentDiagram](diagrams\structurizr-smarthomeT5-MongoDBComponentDiagram.png)
+
 - **Structure**:
   - **Collections**:
     - `Users`, `Homes`, `Rooms`, and `Devices`.
@@ -297,7 +248,10 @@ Both Backend and Frontend launch at the same time.
 - **Data Flow**:
   - Toggled devices are immediately reflected in the database and the frontend through SignalR. See below for data flow in details.
 
-##### Azure Integration
+#### Azure Integration
+
+> REM: Pk encore azure functions ?
+
 - **Azure Functions**:
   - Processes data when devices are toggled from the frontend.
   - Adapts JSON payloads to match the IoT Hub's expected format for communication with Arduino devices.
@@ -307,17 +261,20 @@ Both Backend and Frontend launch at the same time.
 - **SignalR**:
   - Facilitates instant feedback between frontend and backend upon device state changes from the IoT Device and vice-versa.
 
+### Summary
 
-##### Summary
+> REM: Summary et ce contenu vrmnt utile ici ?
+
 This SmartHome web application provides a user-friendly and elegant interface for managing smart home configurations. It enables dynamic control of homes, rooms, and devices, using Angular for the frontend and .NET for backend logic. Real-time updates via SignalR ensure the state of the devices are kept updated, while integration with the Azure Function allows communication with the IoT Hub. 
 
-Addressing current compatibility issues will unlock the full potential of the system!
+>  [!NOTE]
+>
+> Addressing current compatibility issues will unlock the full potential of the system
 
 ---
 
-## 5. Data Flow
+## **5. Data Flow**
 
-### 
 ```mermaid
 sequenceDiagram
     participant D as Device
@@ -408,7 +365,7 @@ To avoid modifying the entire Database after each device toggle, the Web App was
 
 ---
 
-## 6. Application Security
+## **6. Application Security**
 
 The application implements several security measures:
 - Session-based authentication
@@ -417,23 +374,9 @@ The application implements several security measures:
 - Input validation and sanitization
 
 ---
+## **7. Deployment Architecture**
 
-## 7. Scalability and Performance
-
-> [!TODO]
-
---- 
-## 8. Deployment Architecture
-
-> [!TODO]
->
-> Github h3
->
-> - smarthome web app
->   - subdirectoy Client --> angular frontend project
->   - subdirectory Server --> angular backend project
-> - azure function http trigger (keep it because could be necessary if problems with eventgrid)
-> - azure function eventgrid trigger
+> TODO: Enhance with Elie's information ? 
 
 ### Environment Setup
 
@@ -451,9 +394,10 @@ The application implements several security measures:
 
 ---
 
-## 9. Monitoring and Maintenance
+## **8. Monitoring and Maintenance**
 
 ### Known Issues and Challenges
+
 1. **IoT JSON Compatibility**:
    - The JSON payload sent from the web application to the IoT Hub does not align with the expected format in the client-defined Arduino setup.
    - **Impact**: This misalignment causes communication errors, requiring manual intervention to adapt the payload structure for successful toggling.
@@ -471,6 +415,7 @@ The application implements several security measures:
      - Introduce transaction-like operations or atomic updates in MongoDB to ensure consistency during batch updates.
 
 ### Maintenance Tasks
+
 1. **Routine Testing**:
    - Often verify JSON compatibility between the web app, IoT Hub, and Arduino configurations.
    - Test device toggling to ensure proper database updates and state changes.
@@ -498,11 +443,10 @@ The application implements several security measures:
    - Automate JSON mapping for seamless compatibility, if possible.
    - Develop tools for ID synchronization and eliminate manual registration steps, if possible.
 
----
-
-## 10. Appendix
+## **9. Appendix**
 
 ### References
+
 - [Azure IoT Hub Documentation](https://docs.microsoft.com/en-us/azure/iot-hub/)
 - [Azure Functions Documentation](https://docs.microsoft.com/en-us/azure/azure-functions/)
 - [SignalR Documentation](https://docs.microsoft.com/en-us/aspnet/core/signalr/)
@@ -510,18 +454,10 @@ The application implements several security measures:
 
 ### Attachments 
 
-> [!Important]
->
-> -- Attach the code of the azure function
-> ---- Complete code or part of it, as file with reference link or in code block ?
-
-> [!IMPORTANT]
->
-> Code Samples necessary if already explained before in documentation
-
 ---
 
 ### Team Members
+
 - Alain M. Nitunga
 - Elie Kheirallah
 - Farouk Ait Oujkal
