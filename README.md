@@ -28,7 +28,7 @@ The *SmartHome* project aims to provide a cloud-based IoT solution that enables 
 
 > [!IMPORTANT]
 >
-> Not In Scope
+> Not In Scope  
 > ❌ Mobile Applications  
 > ❌ Hardware Manufacturing  
 > ❌ Third-party IoT Platforms Integration  
